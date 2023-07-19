@@ -11,7 +11,25 @@ const getSingleBook = async (id: string): Promise<IBook | null> => {
   return result;
 };
 
+const deleteBook = async (
+  id: string,
+  email: string | undefined
+): Promise<Partial<IBook> | undefined | null> => {
+  console.log("match email", email);
+  const matchBook = await Book.findById(id);
+
+  if (matchBook?.user === email) {
+    console.log(
+      "🚀 ~ file: book.services.ts:25 ~ deleteBook ~ matchBook:",
+      matchBook
+    );
+    const result = await Book.findByIdAndDelete(id);
+    return result;
+  }
+};
+
 export const BookService = {
   createBook,
   getSingleBook,
+  deleteBook,
 };

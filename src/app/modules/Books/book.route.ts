@@ -13,4 +13,6 @@ router.post(
 
 router.get("/:id", BookController.getSingleBook);
 
+router.delete("/:id", BookController.deleteBook);
+
 export const BookRouter = router;
