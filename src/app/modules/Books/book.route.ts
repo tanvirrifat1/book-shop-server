@@ -21,4 +21,6 @@ router.patch(
   BookController.updateBook
 );
 
+router.get("/", BookController.getALLBook);
+
 export const BookRouter = router;

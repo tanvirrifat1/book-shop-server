@@ -4,6 +4,11 @@ import { BookService } from "./book.service";
 import sendResponse from "../../../shared/sendResponse";
 import { IBook } from "./book.interface";
 import httpStatus from "http-status";
+import pick from "../../../pagination/pick";
+import {
+  BookFilterableFields,
+  paginationFields,
+} from "../../../pagination/pagination";
 
 const createBook = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -64,9 +69,25 @@ const updateBook = catchAsync(
   })
 );
 
+const getALLBook = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, BookFilterableFields);
+  const paginationOptions = pick(req.query, paginationFields);
+
+  const result = await BookService.getALLBook(filters, paginationOptions);
+
+  res.status(200).json({
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Books retrieved successfully ",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const BookController = {
   createBook,
   getSingleBook,
   deleteBook,
   updateBook,
+  getALLBook,
 };
