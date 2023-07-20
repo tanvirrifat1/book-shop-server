@@ -20,32 +20,47 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserService = void 0;
-const paginationHelper_1 = require("../../../pagination/paginationHelper");
-const user_constant_1 = require("./user.constant");
-const user_model_1 = require("./user.model");
-const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.create(payload);
+exports.BookService = void 0;
+const book_model_1 = require("./book.model");
+const createBook = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield book_model_1.Book.create(payload);
     return result;
 });
-const getAllUser = (filters, paginationOPtions) => __awaiter(void 0, void 0, void 0, function* () {
+const getSingleBook = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield book_model_1.Book.findById(id);
+    return result;
+});
+const deleteBook = (id, email) => __awaiter(void 0, void 0, void 0, function* () {
+    const matchBook = yield book_model_1.Book.findById(id);
+    if ((matchBook === null || matchBook === void 0 ? void 0 : matchBook.user) === email) {
+        console.log("matchBook:email", matchBook);
+        const result = yield book_model_1.Book.findByIdAndDelete(id);
+        return result;
+    }
+});
+const updateBook = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield book_model_1.Book.findOneAndUpdate({ _id: id }, payload, {
+        new: true,
+    });
+    return result;
+});
+const getALLBook = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
     const { searchTerm } = filters, filtersData = __rest(filters, ["searchTerm"]);
-    const { page, limit, skip, sortBy, sortOrder } = paginationHelper_1.paginationHelpers.calculatePagination(paginationOPtions);
+    console.log(filtersData);
+    const page = Number(paginationOptions.page || 1);
+    const limit = Number(paginationOptions.limit || 10);
+    const skip = (page - 1) * limit;
+    const sortBy = paginationOptions.sortBy || "createdAt";
+    const sortOrder = paginationOptions.sortOrder || "desc";
+    const BookSearchableFields = ["title", "genre", "author"];
     const andConditions = [];
     if (searchTerm) {
         andConditions.push({
-            $or: user_constant_1.userSearchableFields.map((field) => ({
+            $or: BookSearchableFields.map((field) => ({
                 [field]: {
                     $regex: searchTerm,
                     $options: "i",
                 },
-            })),
-        });
-    }
-    if (Object.keys(filtersData).length) {
-        andConditions.push({
-            $and: Object.entries(filtersData).map(([field, value]) => ({
-                [field]: value,
             })),
         });
     }
@@ -54,11 +69,11 @@ const getAllUser = (filters, paginationOPtions) => __awaiter(void 0, void 0, voi
         sortConditions[sortBy] = sortOrder;
     }
     const whereConditions = andConditions.length > 0 ? { $and: andConditions } : {};
-    const result = yield user_model_1.User.find(whereConditions)
+    const result = yield book_model_1.Book.find(whereConditions)
         .sort(sortConditions)
         .skip(skip)
         .limit(limit);
-    const total = yield user_model_1.User.countDocuments();
+    const total = yield book_model_1.Book.countDocuments();
     return {
         meta: {
             page,
@@ -68,24 +83,17 @@ const getAllUser = (filters, paginationOPtions) => __awaiter(void 0, void 0, voi
         data: result,
     };
 });
-const getSingleUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.findById(id);
-    return result;
-});
-const updatedUser = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.findByIdAndUpdate({ _id: id }, payload, {
+const postReview = (id, reviewData) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield book_model_1.Book.findOneAndUpdate({ _id: id }, { $push: { reviews: reviewData } }, {
         new: true,
     });
     return result;
 });
-const deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.findByIdAndDelete(id);
-    return result;
-});
-exports.UserService = {
-    createUser,
-    getAllUser,
-    getSingleUser,
-    updatedUser,
-    deleteUser,
+exports.BookService = {
+    createBook,
+    getSingleBook,
+    deleteBook,
+    updateBook,
+    getALLBook,
+    postReview,
 };
