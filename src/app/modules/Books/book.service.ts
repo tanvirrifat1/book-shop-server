@@ -89,10 +89,25 @@ const getALLBook = async (
   };
 };
 
+const postReview = async (
+  id: string,
+  reviewData: string
+): Promise<Partial<IBook> | null> => {
+  const result = await Book.findOneAndUpdate(
+    { _id: id },
+    { $push: { reviews: reviewData } },
+    {
+      new: true,
+    }
+  );
+  return result;
+};
+
 export const BookService = {
   createBook,
   getSingleBook,
   deleteBook,
   updateBook,
   getALLBook,
+  postReview,
 };

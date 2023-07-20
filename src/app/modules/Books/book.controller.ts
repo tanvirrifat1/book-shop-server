@@ -9,6 +9,7 @@ import {
   BookFilterableFields,
   paginationFields,
 } from "../../../pagination/pagination";
+import { Book } from "./book.model";
 
 const createBook = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -84,10 +85,49 @@ const getALLBook = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const postReviews = catchAsync(
+  catchAsync(async (req: Request, res: Response) => {
+    const bookId = req.params.id;
+    const review = req.body.review;
+    console.log(review, bookId);
+    const result = await BookService.postReview(bookId, review);
+    console.log(
+      "🚀 ~ file: book.controller.ts:108 ~ catchAsync ~ result:",
+      result
+    );
+
+    sendResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "Book updated successfully",
+      data: result,
+    });
+  })
+);
+
+const getReview = catchAsync(async (req: Request, res: Response) => {
+  const bookId = req.params.id;
+
+  const result = await Book.findById(bookId).select({
+    _id: 1,
+    reviews: 1,
+    title: 1,
+  });
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Books retrieved successfully ",
+    data: result,
+  });
+});
+
 export const BookController = {
   createBook,
   getSingleBook,
   deleteBook,
   updateBook,
   getALLBook,
+  postReviews,
+  getReview,
 };

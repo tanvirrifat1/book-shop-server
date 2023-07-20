@@ -23,4 +23,10 @@ router.patch(
 
 router.get("/", BookController.getALLBook);
 
+// review
+
+router.post("/Review/:id", BookController.postReviews);
+
+router.get("/Review/:id", BookController.getReview);
+
 export const BookRouter = router;
